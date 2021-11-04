@@ -21,10 +21,15 @@ bool LED1status = LOW;
 uint8_t LED2pin = 4;
 bool LED2status = LOW;
 
+uint8_t MotorD1 = 18;
+uint8_t MotorD2 = 19;
+
 void setup() {
   Serial.begin(115200);
   pinMode(LED1pin, OUTPUT);
   pinMode(LED2pin, OUTPUT);
+  pinMode(MotorD1, OUTPUT);
+  pinMode(MotorD2, OUTPUT);
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
@@ -41,6 +46,18 @@ void setup() {
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+
+  digitalWrite(LED1pin, HIGH);
+  delay(100);
+  digitalWrite(LED1pin, LOW);
+  delay(100);
+  digitalWrite(LED1pin, HIGH);
+  delay(100); 
+  digitalWrite(LED1pin, LOW);
+  delay(100);
+  digitalWrite(LED1pin, HIGH);
+  delay(100);
+  digitalWrite(LED1pin, LOW);
 
   //String ip = (String) WiFi.localIP();
 
@@ -70,12 +87,31 @@ void loop() {
   {digitalWrite(LED1pin, LOW);}
   
   if(LED2status)
-  {ledcWrite(0, 255);
-  delay(1000);
-  LED2status = LOW;
-  server.send(200, "text/html", SendHTML(LED1status,false));}
+  {
+    digitalWrite(MotorD1, HIGH);
+    digitalWrite(MotorD2, LOW);
+
+    ledcWrite(0, 255);
+    delay(2000);
+    
+    ledcWrite(0, 0);
+    delay(2000);
+
+    digitalWrite(MotorD1, LOW);
+    digitalWrite(MotorD2, HIGH);
+
+    LED2status = LOW;
+    ledcWrite(0, 255);
+    delay(2000);
+
+    server.send(200, "text/html", SendHTML(LED1status,false));
+  }
   else
-  {ledcWrite(0, 0);}                          
+  {
+    digitalWrite(MotorD1, LOW);
+    digitalWrite(MotorD2, LOW);
+    ledcWrite(0, 0);
+  }                          
 
   
 }
